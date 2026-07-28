@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculadora de Custo de Produção & Precificação</title>
+  <style>
+    :root {
+      --blue-primary: #1e3a8a;
+      --blue-secondary: #2563eb;
+      --blue-light: #eff6ff;
+      --blue-accent: #3b82f6;
+      --green-whatsapp: #25d366;
+      --green-whatsapp-dark: #1da851;
+      --text-dark: #1f2937;
+      --bg-gray: #f8fafc;
+      --border-color: #cbd5e1;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-gray);
+      color: var(--text-dark);
+      line-height: 1.5;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    header {
+      border-bottom: 3px solid var(--blue-secondary);
+      padding-bottom: 15px;
+      margin-bottom: 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    h1 {
+      color: var(--blue-primary);
+      font-size: 1.8rem;
+    }
+
+    .badge {
+      background-color: var(--blue-light);
+      color: var(--blue-secondary);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .section-title {
+      color: var(--blue-primary);
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+      border-left: 4px solid var(--blue-secondary);
+      padding-left: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: var(--text-dark);
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--blue-secondary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      padding: 12px 10px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th {
+      background-color: var(--blue-primary);
+      color: white;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    tr:hover {
+      background-color: var(--blue-light);
+    }
+
+    .btn {
+      background-color: var(--blue-secondary);
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+
+    .btn:hover {
+      background-color: var(--blue-primary);
+    }
+
+    .btn-whatsapp {
+      background-color: var(--green-whatsapp);
+      color: white;
+      width: 100%;
+      padding: 14px;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: background-color 0.2s;
+    }
+
+    .btn-whatsapp:hover {
+      background-color: var(--green-whatsapp-dark);
+    }
+
+    .btn-danger {
+      background-color: #ef4444;
+      padding: 6px 12px;
+      font-size: 0.85rem;
+    }
+
+    .btn-danger:hover {
+      background-color: #dc2626;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 25px;
+    }
+
+    .card {
+      background: var(--blue-light);
+      border: 1px solid #bfdbfe;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .card h3 {
+      font-size: 0.85rem;
+      color: var(--blue-primary);
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .card .value {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: var(--text-dark);
+    }
+
+    .card.highlight {
+      background-color: var(--blue-primary);
+      color: white;
+    }
+
+    .card.highlight h3, .card.highlight .value {
+      color: white;
+    }
+
+    .pricing-box {
+      margin-top: 25px;
+      background-color: #f1f5f9;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    @media (max-width: 600px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>Gestão de Receituário e Custos</h1>
+      <span class="badge">Módulo de Precificação</span>
+    </header>
+
+    <!-- Dados do Produto Final -->
+    <section>
+      <h2 class="section-title">1. Dados do Novo Produto</h2>
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="productName">Nome do Produto a Fabricar:</label>
+          <input type="text" id="productName" placeholder="Ex: Bolo de Cenoura Comercial" />
+        </div>
+        <div class="form-group">
+          <label for="yieldQuantity">Rendimento da Receita (Unidades/Porções):</label>
+          <input type="number" id="yieldQuantity" value="1" min="1" oninput="calculateAll()" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Adicionar Insumos -->
+    <section>
+      <h2 class="section-title">2. Lista de Insumos / Matéria-Prima</h2>
+      
+      <form id="ingredientForm" onsubmit="addIngredient(event)">
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="ingName">Nome do Insumo:</label>
+            <input type="text" id="ingName" placeholder="Ex: Cenoura" required />
+          </div>
+          <div class="form-group">
+            <label for="ingPrice">Preço de Compra (R$):</label>
+            <input type="number" id="ingPrice" step="0.01" placeholder="Ex: 5.99" required />
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="ingPackageQty">Qtd Embalagem Comprada (Kg/L):</label>
+            <input type="number" id="ingPackageQty" step="0.001" placeholder="Ex: 1.000 para 1kg" required />
+          </div>
+          <div class="form-group">
+            <label for="ingUsedQty">Qtd Usada na Receita (Kg/L):</label>
+            <input type="number" id="ingUsedQty" step="0.001" placeholder="Ex: 0.400 para 400g" required />
+          </div>
+        </div>
+
+        <button type="submit" class="btn">+ Adicionar Insumo</button>
+      </form>
+
+      <!-- Tabela -->
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Insumo</th>
+              <th>Preço Compra</th>
+              <th>Qtd Comprada</th>
+              <th>Qtd Usada</th>
+              <th>Custo Usado</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody id="ingredientsTable">
+            <!-- Linhas adicionadas via JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Resumo dos Custos -->
+    <section>
+      <h2 class="section-title">3. Resumo da Produção</h2>
+      <div class="summary-grid">
+        <div class="card">
+          <h3>Total Kg/L Comprado</h3>
+          <div class="value" id="totalPurchasedKg">0,000 Kg</div>
+        </div>
+        <div class="card">
+          <h3>Total Kg/L Utilizado</h3>
+          <div class="value" id="totalUsedKg">0,000 Kg</div>
+        </div>
+        <div class="card">
+          <h3>Custo Total da Receita</h3>
+          <div class="value" id="totalCost">R$ 0,00</div>
+        </div>
+        <div class="card highlight">
+          <h3>Custo por Unidade</h3>
+          <div class="value" id="unitCost">R$ 0,00</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Precificação -->
+    <section class="pricing-box">
+      <h2 class="section-title">4. Precificação de Venda</h2>
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="marginPercent">Margem de Lucro Desejada (%):</label>
+          <input type="number" id="marginPercent" value="100" min="0" step="1" oninput="calculateAll()" />
+        </div>
+        <div class="form-group">
+          <label>Preço de Venda Sugerido (Por Unidade):</label>
+          <input type="text" id="suggestedPrice" readonly style="font-weight: bold; background-color: #e2e8f0; color: var(--blue-primary);" />
+        </div>
+      </div>
+
+      <!-- Botão Enviar WhatsApp -->
+      <button class="btn-whatsapp" onclick="sendToWhatsApp()">
+        📲 Enviar Resumo para o WhatsApp
+      </button>
+    </section>
+  </div>
+
+  <script>
+    let ingredients = [];
+
+    function addIngredient(event) {
+      event.preventDefault();
+
+      const name = document.getElementById('ingName').value;
+      const price = parseFloat(document.getElementById('ingPrice').value);
+      const pkgQty = parseFloat(document.getElementById('ingPackageQty').value);
+      const usedQty = parseFloat(document.getElementById('ingUsedQty').value);
+
+      const itemCost = (price / pkgQty) * usedQty;
+
+      ingredients.push({
+        id: Date.now(),
+        name,
+        price,
+        pkgQty,
+        usedQty,
+        itemCost
+      });
+
+      document.getElementById('ingredientForm').reset();
+      updateTable();
+      calculateAll();
+    }
+
+    function removeIngredient(id) {
+      ingredients = ingredients.filter(item => item.id !== id);
+      updateTable();
+      calculateAll();
+    }
+
+    function updateTable() {
+      const tbody = document.getElementById('ingredientsTable');
+      tbody.innerHTML = '';
+
+      ingredients.forEach(item => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><strong>${item.name}</strong></td>
+          <td>R$ ${item.price.toFixed(2)}</td>
+          <td>${item.pkgQty.toFixed(3)} Kg/L</td>
+          <td>${item.usedQty.toFixed(3)} Kg/L</td>
+          <td>R$ ${item.itemCost.toFixed(2)}</td>
+          <td><button class="btn btn-danger" onclick="removeIngredient(${item.id})">Excluir</button></td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function calculateAll() {
+      let totalPurchasedKg = 0;
+      let totalUsedKg = 0;
+      let totalCost = 0;
+
+      ingredients.forEach(item => {
+        totalPurchasedKg += item.pkgQty;
+        totalUsedKg += item.usedQty;
+        totalCost += item.itemCost;
+      });
+
+      const yieldQty = parseFloat(document.getElementById('yieldQuantity').value) || 1;
+      const marginPercent = parseFloat(document.getElementById('marginPercent').value) || 0;
+
+      const unitCost = yieldQty > 0 ? totalCost / yieldQty : 0;
+      const suggestedPrice = unitCost * (1 + (marginPercent / 100));
+
+      document.getElementById('totalPurchasedKg').innerText = `${totalPurchasedKg.toFixed(3)} Kg`;
+      document.getElementById('totalUsedKg').innerText = `${totalUsedKg.toFixed(3)} Kg`;
+      document.getElementById('totalCost').innerText = `R$ ${totalCost.toFixed(2)}`;
+      document.getElementById('unitCost').innerText = `R$ ${unitCost.toFixed(2)}`;
+      document.getElementById('suggestedPrice').value = `R$ ${suggestedPrice.toFixed(2)}`;
+    }
+
+    function sendToWhatsApp() {
+      const productName = document.getElementById('productName').value || 'Produto sem nome';
+      const yieldQty = document.getElementById('yieldQuantity').value || '1';
+      const totalPurchasedKg = document.getElementById('totalPurchasedKg').innerText;
+      const totalUsedKg = document.getElementById('totalUsedKg').innerText;
+      const totalCost = document.getElementById('totalCost').innerText;
+      const unitCost = document.getElementById('unitCost').innerText;
+      const marginPercent = document.getElementById('marginPercent').value;
+      const suggestedPrice = document.getElementById('suggestedPrice').value;
+
+      if (ingredients.length === 0) {
+        alert('Adicione pelo menos um insumo antes de enviar!');
+        return;
+      }
+
+      let message = `📋 *RECEITUÁRIO E FICHA TÉCNICA*\n`;
+      message += `------------------------------------\n`;
+      message += `🔹 *Produto:* ${productName}\n`;
+      message += `🔹 *Rendimento:* ${yieldQty} unidade(s)\n\n`;
+      
+      message += `🛒 *INSUMOS UTILIZADOS:*\n`;
+      ingredients.forEach((item, index) => {
+        message += `${index + 1}. *${item.name}*: Usado ${item.usedQty.toFixed(3)} Kg/L (Custo: R$ ${item.itemCost.toFixed(2)})\n`;
+      });
+
+      message += `\n📊 *RESUMO DE CUSTOS E PESOS:*\n`;
+      message += `• Peso Total Comprado: ${totalPurchasedKg}\n`;
+      message += `• Peso Usado (Insumos): ${totalUsedKg}\n`;
+      message += `• Custo Total do Lote: ${totalCost}\n`;
+      message += `• Custo Unitário: ${unitCost}\n\n`;
+
+      message += `🏷️ *PRECIFICAÇÃO:*\n`;
+      message += `• Margem de Lucro: ${marginPercent}%\n`;
+      message += `• *Preço de Venda Sugerido:* ${suggestedPrice}\n`;
+
+      const phoneNumber = '5581991152541';
+      const encodedMessage = encodeURIComponent(message);
+      const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`;
+
+      window.open(whatsappUrl, '_blank');
+    }
+  </script>
+</body>
+</html>
