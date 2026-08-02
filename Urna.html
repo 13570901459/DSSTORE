@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urna Eletrônica - Edição Divertida</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #2c3e50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .urna {
+            background-color: #dbd5c9;
+            padding: 30px;
+            border-radius: 15px;
+            display: flex;
+            gap: 30px;
+            box-shadow: 0px 10px 25px rgba(0,0,0,0.5);
+            border: 4px solid #b5af9f;
+        }
+
+        /* TELA */
+        .tela {
+            width: 450px;
+            height: 320px;
+            background: linear-gradient(135deg, #eef2f3, #8e9eab);
+            border: 4px solid #555;
+            border-radius: 5px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tela-topo {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .cargo {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+
+        .numeros-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .numero-caixa {
+            width: 35px;
+            height: 45px;
+            border: 2px solid #000;
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            line-height: 40px;
+            background-color: #fff;
+        }
+
+        .pisca {
+            animation: piscar 1s infinite;
+        }
+
+        @keyframes piscar {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        .detalhes-candidato {
+            margin-top: 15px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .foto-candidato {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 110px;
+            height: 135px;
+            border: 2px solid #000;
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .foto-candidato img {
+            width: 100%;
+            height: 110px;
+            object-fit: cover;
+        }
+
+        .foto-candidato span {
+            font-size: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .instrucoes {
+            border-top: 2px solid #000;
+            padding-top: 5px;
+            font-size: 11px;
+        }
+
+        .fim-tela {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            font-size: 70px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        /* TECLADO */
+        .teclado {
+            background-color: #2b2b2b;
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 260px;
+        }
+
+        .teclado-linha {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .btn-num {
+            background-color: #111;
+            color: #fff;
+            width: 55px;
+            height: 45px;
+            font-size: 20px;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0px 3px 0px #000;
+        }
+
+        .btn-num:active {
+            transform: translateY(2px);
+            box-shadow: 0px 1px 0px #000;
+        }
+
+        .teclado-acoes {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            gap: 8px;
+        }
+
+        .btn-acao {
+            flex: 1;
+            height: 50px;
+            font-size: 10px;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0px 3px 0px rgba(0,0,0,0.4);
+        }
+
+        .btn-acao:active {
+            transform: translateY(2px);
+            box-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+        }
+
+        .btn-branco { background-color: #fff; color: #000; }
+        .btn-corrige { background-color: #e67e22; color: #000; }
+        .btn-confirma { background-color: #27ae60; color: #000; height: 58px; margin-top: -8px; }
+
+        .alerta-brincadeira {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(192, 57, 43, 0.95);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            font-weight: bold;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="urna">
+        <!-- TELA -->
+        <div class="tela" id="tela">
+            <!-- O conteúdo da tela é montado pelo JavaScript -->
+        </div>
+
+        <!-- TECLADO -->
+        <div class="teclado">
+            <div class="teclado-linha">
+                <button class="btn-num" onclick="clicou('1')">1</button>
+                <button class="btn-num" onclick="clicou('2')">2</button>
+                <button class="btn-num" onclick="clicou('3')">3</button>
+            </div>
+            <div class="teclado-linha">
+                <button class="btn-num" onclick="clicou('4')">4</button>
+                <button class="btn-num" onclick="clicou('5')">5</button>
+                <button class="btn-num" onclick="clicou('6')">6</button>
+            </div>
+            <div class="teclado-linha">
+                <button class="btn-num" onclick="clicou('7')">7</button>
+                <button class="btn-num" onclick="clicou('8')">8</button>
+                <button class="btn-num" onclick="clicou('9')">9</button>
+            </div>
+            <div class="teclado-linha">
+                <button class="btn-num" onclick="clicou('0')">0</button>
+            </div>
+            <div class="teclado-acoes">
+                <button class="btn-acao btn-branco" onclick="branco()">BRANCO</button>
+                <button class="btn-acao btn-corrige" onclick="corrige()">CORRIGE</button>
+                <button class="btn-acao btn-confirma" onclick="confirma()">CONFIRMA</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dados dos Candidatos
+        const candidatos = {
+            "13": {
+                nome: "LULA",
+                partido: "PT",
+                foto: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Lula_-_foto_oficial_05_jan_2023_%28cropped%29.jpg/220px-Lula_-_foto_oficial_05_jan_2023_%28cropped%29.jpg"
+            },
+            "22": {
+                nome: "FLÁVIO BOLSONARO",
+                partido: "PL",
+                foto: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Fl%C3%A1vio_Bolsonaro_oficial.jpg/220px-Fl%C3%A1vio_Bolsonaro_oficial.jpg"
+            }
+        };
+
+        let numeroDigitado = "";
+        let votoEmBranco = false;
+        let bloqueado = false;
+
+        // Efeitos Sonoros usando Web Audio API (sem precisar carregar MP3 externo)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function tocarSomBotao() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.05);
+        }
+
+        function tocarSomFim() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+            osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15);
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.4);
+        }
+
+        function atualizarTela() {
+            const tela = document.getElementById("tela");
+
+            if (votoEmBranco) {
+                tela.innerHTML = `
+                    <div class="tela-topo">SEU VOTO VAI PARA</div>
+                    <div class="cargo">PRESIDENTE</div>
+                    <div style="font-size: 28px; text-align: center; margin-top: 30px; font-weight: bold;">VOTO EM BRANCO</div>
+                    <div class="instrucoes">
+                        Aperte a tecla:<br/>
+                        <strong>VERDE</strong> para CONFIRMAR<br/>
+                        <strong>VERMELHO</strong> para REINICIAR
+                    </div>
+                `;
+                return;
+            }
+
+            let num1 = numeroDigitado[0] || "";
+            let num2 = numeroDigitado[1] || "";
+            let pisca1 = numeroDigitado.length === 0 ? "pisca" : "";
+            let pisca2 = numeroDigitado.length === 1 ? "pisca" : "";
+
+            let cand = candidatos[numeroDigitado];
+
+            let htmlDetalhes = "";
+            let htmlFoto = "";
+
+            if (cand) {
+                htmlDetalhes = `
+                    <div class="detalhes-candidato">
+                        Nome: <strong>${cand.nome}</strong><br/>
+                        Partido: <strong>${cand.partido}</strong>
+                    </div>
+                `;
+                htmlFoto = `
+                    <div class="foto-candidato">
+                        <img src="${cand.foto}" alt="Foto Candidato">
+                        <span>PRESIDENTE</span>
+                    </div>
+                `;
+            } else if (numeroDigitado.length === 2) {
+                htmlDetalhes = `
+                    <div class="detalhes-candidato" style="margin-top:20px;">
+                        <strong>VOTO NULO</strong>
+                    </div>
+                `;
+            }
+
+            tela.innerHTML = `
+                <div class="tela-topo">SEU VOTO VAI PARA</div>
+                <div class="cargo">PRESIDENTE</div>
+                <div class="numeros-container">
+                    <span>Número:</span>
+                    <div class="numero-caixa ${pisca1}">${num1}</div>
+                    <div class="numero-caixa ${pisca2}">${num2}</div>
+                </div>
+                ${htmlDetalhes}
+                ${htmlFoto}
+                <div class="instrucoes">
+                    Aperte a tecla:<br/>
+                    <strong>VERDE</strong> para CONFIRMAR<br/>
+                    <strong>VERMELHO</strong> para REINICIAR
+                </div>
+            `;
+        }
+
+        function clicou(num) {
+            if (bloqueado || votoEmBranco) return;
+            if (numeroDigitado.length < 2) {
+                tocarSomBotao();
+                numeroDigitado += num;
+                atualizarTela();
+            }
+        }
+
+        function branco() {
+            if (bloqueado) return;
+            tocarSomBotao();
+            votoEmBranco = true;
+            numeroDigitado = "";
+            atualizarTela();
+        }
+
+        function corrige() {
+            if (bloqueado) return;
+            tocarSomBotao();
+            votoEmBranco = false;
+            numeroDigitado = "";
+            atualizarTela();
+        }
+
+        function confirma() {
+            if (bloqueado) return;
+
+            // BRINCADEIRA DO 22
+            if (numeroDigitado === "22") {
+                tocarSomBotao();
+                bloqueado = true;
+
+                const tela = document.getElementById("tela");
+                tela.innerHTML += `
+                    <div class="alerta-brincadeira">
+                        <h2 style="font-size: 22px; margin-bottom: 10px;">⚠️ RECONTAGEM AUTOMÁTICA! ⚠️</h2>
+                        <p style="font-size: 14px;">Identificamos erro no 22...</p>
+                        <p style="font-size: 18px; margin-top: 10px; color: #f1c40f;">Corrigindo voto para LULA (13)...</p>
+                    </div>
+                `;
+
+                setTimeout(() => {
+                    numeroDigitado = "13";
+                    bloqueado = false;
+                    atualizarTela();
+                    finalizarVoto();
+                }, 2500);
+
+            } else if (numeroDigitado.length === 2 || votoEmBranco) {
+                finalizarVoto();
+            }
+        }
+
+        function finalizarVoto() {
+            bloqueado = true;
+            tocarSomFim();
+            const tela = document.getElementById("tela");
+            tela.innerHTML = `<div class="fim-tela">FIM</div>`;
+
+            setTimeout(() => {
+                bloqueado = false;
+                votoEmBranco = false;
+                numeroDigitado = "";
+                atualizarTela();
+            }, 4000);
+        }
+
+        // Inicializa a tela
+        atualizarTela();
+    </script>
+</body>
+</html>
