@@ -2,8 +2,8 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Urna Eletrônica - Horizontal Tela Cheia</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urna Eletrônica - Com Som Pililim e Foto</title>
     <style>
         * {
             box-sizing: border-box;
@@ -264,7 +264,7 @@
             font-weight: bold;
             cursor: pointer;
             z-index: 99;
-            opacity: 0.7;
+            opacity: 0.8;
         }
         .btn-fullscreen:hover { opacity: 1; }
     </style>
@@ -275,8 +275,10 @@
 
     <div class="container-principal">
         <div class="urna">
+            <!-- TELA DA URNA -->
             <div class="tela" id="tela"></div>
 
+            <!-- TECLADO DA URNA -->
             <div class="teclado">
                 <div class="teclado-numeros">
                     <div class="teclado-linha">
@@ -308,7 +310,7 @@
     </div>
 
     <script>
-        // Foto do Lula
+        // Link direto da foto do Lula da Wikipedia / Wikimedia Commons
         const fotoLula = "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Lula_-_foto_oficial_05_jan_2023_%28cropped%29.jpg/300px-Lula_-_foto_oficial_05_jan_2023_%28cropped%29.jpg";
 
         const candidatos = {
@@ -323,52 +325,73 @@
         let votoEmBranco = false;
         let bloqueado = false;
 
-        // SISTEMA DE ÁUDIO REALISTA (Sintetizador Web Audio API)
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // Contexto de Áudio
+        let audioCtx = null;
 
-        // Som de tecla (Beep curto)
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // Som de cada tecla pressionada
         function tocarSomTeclado() {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
+            initAudio();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = 'sine';
-            osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            osc.frequency.setValueAtTime(1100, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             osc.start();
             osc.stop(audioCtx.currentTime + 0.05);
         }
 
-        // Som "PILILIM" clássico da Urna ao confirmar voto
+        // Som de "PILILIM" idêntico e realista da Urna Eletrônica Real
         function tocarSomPililim() {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
+            initAudio();
             
-            const t = audioCtx.currentTime;
+            const now = audioCtx.currentTime;
+            
+            // Nota 1 (Bip 1)
             const osc1 = audioCtx.createOscillator();
-            const osc2 = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-
+            const gain1 = audioCtx.createGain();
             osc1.type = 'sine';
+            osc1.frequency.setValueAtTime(800, now);
+            gain1.gain.setValueAtTime(0.3, now);
+            gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+            osc1.connect(gain1);
+            gain1.connect(audioCtx.destination);
+            osc1.start(now);
+            osc1.stop(now + 0.15);
+
+            // Nota 2 (Bip 2 - mais grave)
+            const osc2 = audioCtx.createOscillator();
+            const gain2 = audioCtx.createGain();
             osc2.type = 'sine';
+            osc2.frequency.setValueAtTime(600, now + 0.15);
+            gain2.gain.setValueAtTime(0.3, now + 0.15);
+            gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+            osc2.connect(gain2);
+            gain2.connect(audioCtx.destination);
+            osc2.start(now + 0.15);
+            osc2.stop(now + 0.3);
 
-            // Primeira nota (G5)
-            osc1.frequency.setValueAtTime(783.99, t);
-            // Segunda nota (C6 - mais aguda)
-            osc2.frequency.setValueAtTime(1046.50, t + 0.15);
-
-            gain.gain.setValueAtTime(0.25, t);
-            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.7);
-
-            osc1.connect(gain);
-            osc2.connect(gain);
-            gain.connect(audioCtx.destination);
-
-            osc1.start(t);
-            osc1.stop(t + 0.15);
-            
-            osc2.start(t + 0.15);
-            osc2.stop(t + 0.7);
+            // Nota 3 (Bip 3 longo - PILILIM!)
+            const osc3 = audioCtx.createOscillator();
+            const gain3 = audioCtx.createGain();
+            osc3.type = 'sine';
+            osc3.frequency.setValueAtTime(1000, now + 0.3);
+            gain3.gain.setValueAtTime(0.4, now + 0.3);
+            gain3.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+            osc3.connect(gain3);
+            gain3.connect(audioCtx.destination);
+            osc3.start(now + 0.3);
+            osc3.stop(now + 1.2);
         }
 
         function atualizarTela() {
@@ -493,7 +516,7 @@
 
         function finalizarVoto() {
             bloqueado = true;
-            tocarSomPililim(); // Toca o som "PILILIM"
+            tocarSomPililim(); // Toca o PILILIM perfeito da urna
             const tela = document.getElementById("tela");
             tela.innerHTML = `<div class="fim-tela">FIM</div>`;
 
@@ -506,6 +529,7 @@
         }
 
         function toggleFullscreen() {
+            initAudio();
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen().catch(err => {});
             } else {
